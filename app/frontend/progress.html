@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recall — мой прогресс</title>
+  </head>
+  <body>
+    <main id="app">
+      <header class="app-header">
+        <h1>Сколько я выучил</h1>
+      </header>
+      <p id="progress-status" role="status" aria-live="polite"></p>
+
+      <section class="progress" aria-label="Прогресс">
+        <div class="progress-item">
+          <span class="progress-number" data-progress="cards_learned">…</span>
+          <span class="progress-label">карточек выучено</span>
+        </div>
+        <div class="progress-item">
+          <span class="progress-number" data-progress="cards_total">…</span>
+          <span class="progress-label">карточек всего</span>
+        </div>
+        <div class="progress-item">
+          <span class="progress-number" data-progress="reviews_total">…</span>
+          <span class="progress-label">повторений</span>
+        </div>
+        <div class="progress-item">
+          <span class="progress-number" data-progress="streak">…</span>
+          <span class="progress-label">дней подряд</span>
+        </div>
+      </section>
+
+      <p class="progress-note">
+        Здесь только числа: сами заметки личные и никому, кроме владельца, не
+        видны. «Выучено» — карточка, которую не нужно повторять ближайшие три
+        недели.
+      </p>
+    </main>
+    <script type="module" src="/src/progress.ts"></script>
+  </body>
+</html>

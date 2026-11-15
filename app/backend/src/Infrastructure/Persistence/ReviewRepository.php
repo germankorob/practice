@@ -6,6 +6,7 @@ namespace Recall\Infrastructure\Persistence;
 
 use Cycle\ORM\EntityManager;
 use Cycle\ORM\ORMInterface;
+use Cycle\ORM\Select;
 use DateTimeZone;
 use Generator;
 use Recall\Domain\Review;
@@ -20,6 +21,11 @@ final readonly class ReviewRepository
     public function save(Review $review): void
     {
         (new EntityManager($this->orm))->persist($review)->run();
+    }
+
+    public function count(): int
+    {
+        return (new Select($this->orm, Review::class))->count();
     }
 
     /**

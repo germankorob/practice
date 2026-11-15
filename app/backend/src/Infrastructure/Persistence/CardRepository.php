@@ -53,6 +53,12 @@ final readonly class CardRepository
         return (new Select($this->orm, Card::class))->where('due', '<=', $day->value)->count();
     }
 
+    /** Сколько карточек с интервалом не меньше заданного числа дней. */
+    public function countWithIntervalAtLeast(int $days): int
+    {
+        return (new Select($this->orm, Card::class))->where('interval', '>=', $days)->count();
+    }
+
     /** Удалить все карточки заметки одним запросом — без них заметку можно удалять. */
     public function deleteByNote(NoteId $noteId): void
     {

@@ -8,6 +8,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerAwareInterface;
 use Recall\Http\Controller\CardsController;
 use Recall\Http\Controller\NotesController;
+use Recall\Http\Controller\PublicController;
 use Recall\Http\Controller\ReviewsController;
 use Recall\Http\Controller\StatsController;
 use Recall\Http\Json;
@@ -47,15 +48,34 @@ $notes = new NotesController($noteRepo, $cardRepo, $serializer, $now);
 $cards = new CardsController($cardRepo, $noteRepo, $serializer, $now);
 $reviews = new ReviewsController($cardRepo, $reviewRepo, $serializer, $now);
 $stats = new StatsController($cardRepo, $reviewRepo, $serializer, $now);
+$public = new PublicController($cardRepo, $reviewRepo, $now);
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
+
+// Заметки личные. Если задан RECALL_ACCESS_TOKEN, всё, кроме публичной страницы
+// (/public/...), отдаём только с заголовком «Authorization: Bearer <токен>».
+// Без токена (локальная разработка, тесты) приложение открыто, как раньше.
+$accessToken = (string) getenv('RECALL_ACCESS_TOKEN');
+$app->add(static function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($accessToken, $app): ResponseInterface {
+    if ($accessToken === '') {
+        return $handler->handle($request);
+    }
+    if ($request->getMethod() === 'OPTIONS' || str_starts_with($request->getUri()->getPath(), '/public/')) {
+        return $handler->handle($request);
+    }
+    if (hash_equals('Bearer ' . $accessToken, $request->getHeaderLine('Authorization'))) {
+        return $handler->handle($request);
+    }
+
+    return Json::error($app->getResponseFactory()->createResponse(), 'нужен токен доступа', 401);
+});
 
 // CORS — фронтенд-дев-сервер ходит к нам с другого источника.
 $app->add(static fn(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface => $handler->handle($request)
     ->withHeader('Access-Control-Allow-Origin', '*')
     ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    ->withHeader('Access-Control-Allow-Headers', 'Content-Type'));
+    ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'));
 
 // Метрики: время запроса и число запросов к БД (наблюдение, не гейт).
 $app->add(static function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($queries): ResponseInterface {
@@ -82,6 +102,7 @@ $app->get('/reviews/queue', $reviews->queue(...));
 $app->post('/reviews/{id}', $reviews->grade(...));
 
 $app->get('/stats', $stats->index(...));
+$app->get('/public/progress', $public->progress(...));
 
 $app->options('/{routes:.+}', static fn(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface => $response->withStatus(204));
 
