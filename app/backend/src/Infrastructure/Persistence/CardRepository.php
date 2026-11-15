@@ -10,6 +10,7 @@ use Cycle\ORM\Select;
 use Recall\Domain\Card;
 use Recall\Domain\ValueObject\CardId;
 use Recall\Domain\ValueObject\Day;
+use Recall\Domain\ValueObject\NoteId;
 
 /** Доступ к карточкам через Cycle ORM. */
 final readonly class CardRepository
@@ -44,6 +45,20 @@ final readonly class CardRepository
     public function count(): int
     {
         return (new Select($this->orm, Card::class))->count();
+    }
+
+    /** Сколько карточек пора показать к этому дню включительно (вместе с просроченными). */
+    public function countDueOn(Day $day): int
+    {
+        return (new Select($this->orm, Card::class))->where('due', '<=', $day->value)->count();
+    }
+
+    /** Удалить все карточки заметки одним запросом — без них заметку можно удалять. */
+    public function deleteByNote(NoteId $noteId): void
+    {
+        $this->orm->getSource(Card::class)->getDatabase()
+            ->delete('cards', ['note_id' => $noteId->toString()])
+            ->run();
     }
 
     public function save(Card $card): void

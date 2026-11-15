@@ -43,10 +43,10 @@ $reviewRepo = new ReviewRepository($boot->orm);
 (new Seeder($noteRepo, $cardRepo))->seedIfEmpty($now);
 
 $serializer = new Serializer();
-$notes = new NotesController($noteRepo, $serializer, $now);
+$notes = new NotesController($noteRepo, $cardRepo, $serializer, $now);
 $cards = new CardsController($cardRepo, $noteRepo, $serializer, $now);
 $reviews = new ReviewsController($cardRepo, $reviewRepo, $serializer, $now);
-$stats = new StatsController($cardRepo, $serializer);
+$stats = new StatsController($cardRepo, $reviewRepo, $serializer, $now);
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
