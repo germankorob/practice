@@ -104,3 +104,102 @@ button:hover {
 #status[data-state="error"] {
   color: #b00020;
 }
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-header a {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+#token-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#token-form[hidden],
+.card-form[hidden],
+#tag-filter[hidden] {
+  display: none;
+}
+
+#note-list li {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.note-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.note-title {
+  font-weight: 600;
+}
+
+.note-body {
+  margin: 0.25rem 0 0;
+  color: #444;
+  white-space: pre-wrap;
+}
+
+.tag {
+  padding: 0 0.4rem;
+  border: none;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.85rem;
+}
+
+.tag:hover {
+  background: #e0e7ff;
+}
+
+.card-form {
+  grid-template-columns: 1fr 1fr auto;
+  margin: 0.5rem 0 0;
+}
+
+.card .answer {
+  margin: 0.5rem 0;
+}
+
+.card .answer summary {
+  cursor: pointer;
+  color: #3730a3;
+}
+
+.progress {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1rem;
+}
+
+.progress-item {
+  display: grid;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.progress-number {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.progress-label,
+.progress-note {
+  color: #555;
+  font-size: 0.9rem;
+}
