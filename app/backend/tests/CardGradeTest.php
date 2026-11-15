@@ -45,6 +45,25 @@ final class CardGradeTest
         Assert::true($card->ease->value < 2.5);
     }
 
+    #[Test]
+    public function gradingGoodAlwaysMovesTheCardFurther(): void
+    {
+        $now = new DateTimeImmutable('2026-06-06');
+        $card = $this->freshCard($now);
+
+        // Сбиваем лёгкость до минимума: раньше интервал 1 × 1.3 округлялся в 1
+        // и «помню» больше не отодвигало карточку.
+        for ($i = 0; $i < 10; ++$i) {
+            $card->grade(Grade::Again, $now);
+        }
+
+        $card->grade(Grade::Good, $now);
+        $first = $card->interval->days;
+        $card->grade(Grade::Good, $now);
+
+        Assert::true($card->interval->days > $first);
+    }
+
     private function freshCard(DateTimeImmutable $now): Card
     {
         return Card::create(NoteId::generate(), CardText::fromString('Q'), CardText::fromString('A'), $now);
