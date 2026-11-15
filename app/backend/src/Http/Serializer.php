@@ -29,6 +29,12 @@ final class Serializer
     {
         $out = [];
         foreach ((new ReflectionObject($entity))->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            // Загруженные из базы сущности — прокси Cycle ORM со служебными полями
+            // «__cycle_orm_...». В ответ API они попадать не должны.
+            if (str_starts_with($property->getName(), '__')) {
+                continue;
+            }
+
             $out[$this->snake($property->getName())] = $this->unwrap($property->getValue($entity));
         }
 
