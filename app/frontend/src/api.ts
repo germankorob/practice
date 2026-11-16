@@ -31,7 +31,34 @@ export interface Stats {
   streak: number;
 }
 
+// Публичный прогресс: только числа, без содержания заметок.
+export interface PublicProgress {
+  cards_total: number;
+  cards_learned: number;
+  reviews_total: number;
+  streak: number;
+}
+
 export type Grade = "again" | "hard" | "good" | "easy";
+
+// Токен доступа к личным данным хранится в браузере владельца.
+const TOKEN_KEY = "recall-token";
+
+export function savedToken(): string {
+  try {
+    return localStorage.getItem(TOKEN_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function saveToken(token: string): void {
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // Хранилище недоступно (например, приватный режим) — просто не запоминаем.
+  }
+}
 
 // Ошибка обращения к API с понятным пользователю текстом.
 export class ApiError extends Error {
@@ -60,6 +87,10 @@ async function http<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
+  const token = savedToken();
+  if (token !== "") {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
   try {
     response = await fetch(`${BASE}${path}`, { ...init, headers });
   } catch {
@@ -86,6 +117,9 @@ export const api = {
     await http(`/notes/${id}`, { method: "DELETE" });
   },
 
+  createCard: (input: { note_id: string; front: string; back: string }) =>
+    http<Card>("/cards", { method: "POST", body: JSON.stringify(input) }),
+
   queue: () => http<Card[]>("/reviews/queue"),
   grade: async (cardId: string, grade: Grade): Promise<void> => {
     await http(`/reviews/${cardId}`, {
@@ -95,4 +129,5 @@ export const api = {
   },
 
   stats: () => http<Stats>("/stats"),
+  publicProgress: () => http<PublicProgress>("/public/progress"),
 };

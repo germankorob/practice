@@ -9,7 +9,8 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # ubuntu-latest уже 26.04, а Playwright 1.56 (в паре с драйвером nixpkgs) её не поддерживает.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
 

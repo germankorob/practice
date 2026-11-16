@@ -24,6 +24,8 @@ services:
     environment:
       # Ephemeral DB inside the container: a fresh, seeded database on every `up`.
       RECALL_DB: /tmp/recall.sqlite
+      # Notes are private: when set, data is served only with this bearer token (except /public/...).
+      RECALL_ACCESS_TOKEN: ${RECALL_ACCESS_TOKEN:-}
     volumes:
       - ./app/backend:/app
       - backend_vendor:/app/vendor

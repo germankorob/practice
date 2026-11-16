@@ -20,6 +20,7 @@ tags:
   - name: cards
   - name: reviews
   - name: stats
+  - name: public
 
 paths:
   /notes:
@@ -191,6 +192,20 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Stats" }
 
+  /public/progress:
+    get:
+      tags: [public]
+      summary: Public learning progress (numbers only, no note content)
+      description: >-
+        Always open, even when RECALL_ACCESS_TOKEN is set. All other endpoints
+        then require "Authorization: Bearer <token>" and answer 401 without it.
+      responses:
+        "200":
+          description: Progress
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PublicProgress" }
+
 components:
   parameters:
     Id:
@@ -282,6 +297,17 @@ components:
         due_today: { type: integer }
         due_week: { type: integer }
         streak: { type: integer }
+
+    PublicProgress:
+      type: object
+      required: [cards_total, cards_learned, reviews_total, streak]
+      properties:
+        cards_total: { type: integer }
+        cards_learned:
+          type: integer
+          description: Cards with an interval of at least 21 days.
+        reviews_total: { type: integer }
+        streak: { type: integer, description: Days in a row with reviews. }
 
     Error:
       type: object

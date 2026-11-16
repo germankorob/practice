@@ -30,6 +30,18 @@ final readonly class Day
         return new self($date->format('Y-m-d'));
     }
 
+    public function previousDay(): self
+    {
+        $date = (new DateTimeImmutable($this->value))->modify('-1 day');
+
+        return new self($date->format('Y-m-d'));
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->value === $other->value;
+    }
+
     public function isOnOrBefore(self $other): bool
     {
         return $this->value <= $other->value;

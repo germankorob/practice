@@ -14,12 +14,14 @@ use Recall\Domain\ValueObject\Tag;
 use Recall\Http\Input\NoteInput;
 use Recall\Http\Json;
 use Recall\Http\Serializer;
+use Recall\Infrastructure\Persistence\CardRepository;
 use Recall\Infrastructure\Persistence\NoteRepository;
 
 final readonly class NotesController
 {
     public function __construct(
         private NoteRepository $notes,
+        private CardRepository $cards,
         private Serializer $serializer,
         private DateTimeImmutable $now,
     ) {}
@@ -74,6 +76,8 @@ final readonly class NotesController
             return Json::error($response, 'note not found', 404);
         }
 
+        // Карточки без заметки остались бы в очереди повторения «ни о чём».
+        $this->cards->deleteByNote($note->id);
         $this->notes->delete($note);
 
         return $response->withStatus(204);

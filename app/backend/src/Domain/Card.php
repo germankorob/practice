@@ -47,6 +47,8 @@ class Card
      */
     public function grade(Grade $grade, DateTimeImmutable $now): Review
     {
+        $previousDays = $this->interval->days;
+
         switch ($grade) {
             case Grade::Again:
                 $this->ease = $this->ease->loweredBy(0.20);
@@ -57,15 +59,18 @@ class Card
                 $this->interval = $this->interval->scaledBy(1.2)->atLeast(1);
                 break;
             case Grade::Good:
+                // «Помню» всегда отодвигает показ хотя бы на день дальше прошлого:
+                // при низкой лёгкости 1 × 1.3 округлялось обратно в 1, и карточка
+                // навсегда застревала на ежедневном показе.
                 $this->interval = $this->interval->isNone()
                     ? Interval::ofDays(1)
-                    : $this->interval->scaledBy($this->ease->value);
+                    : $this->interval->scaledBy($this->ease->value)->atLeast($previousDays + 1);
                 break;
             case Grade::Easy:
                 $this->ease = $this->ease->raisedBy(0.15);
                 $this->interval = $this->interval->isNone()
                     ? Interval::ofDays(3)
-                    : $this->interval->scaledBy($this->ease->value * 1.3);
+                    : $this->interval->scaledBy($this->ease->value * 1.3)->atLeast($previousDays + 2);
                 break;
         }
 
